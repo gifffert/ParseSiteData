@@ -69,6 +69,9 @@ public class MainActivity extends AppCompatActivity {
 
                 Elements data = doc.select("span.thumbnail");
                 int size = data.size();
+                Log.d("doc", "doc: "+doc);
+                Log.d("data", "data: "+data);
+                Log.d("size", ""+size);
                 for (int i = 0; i < size; i++) {
                     String imgUrl = data.select("span.thumbnail")
                             .select("img")
@@ -80,7 +83,12 @@ public class MainActivity extends AppCompatActivity {
                             .eq(i)
                             .text();
 
-                    parseItems.add(new ParseItem(imgUrl, title));
+                    String detailUrl = data.select("h4.gridminfotitle")
+                            .select("a")
+                            .eq(i)
+                            .attr("href");
+
+                    parseItems.add(new ParseItem(imgUrl, title, detailUrl));
                     Log.d("items", "img: " + imgUrl + " . title: " + title);
                 }
 
