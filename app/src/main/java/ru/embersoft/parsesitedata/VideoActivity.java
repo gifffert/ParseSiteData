@@ -10,6 +10,7 @@ import android.widget.ProgressBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -24,6 +25,7 @@ public class VideoActivity extends AppCompatActivity {
     private VideoAdapter adapter;
     private ArrayList<VideoItem> videoItems = new ArrayList<>();
     private ProgressBar progressBar;
+    private SwipeRefreshLayout refreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,12 +34,24 @@ public class VideoActivity extends AppCompatActivity {
 
         progressBar = findViewById(R.id.progressBar);
         recyclerView = findViewById(R.id.recyclerView);
+        refreshLayout = findViewById(R.id.swipeLayout);
 
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new VideoAdapter(videoItems, this);
         recyclerView.setAdapter(adapter);
 
+        loadItems();
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadItems();
+            }
+        });
+
+    }
+
+    private void loadItems() {
         Content content = new Content();
         content.execute();
     }
@@ -49,6 +63,8 @@ public class VideoActivity extends AppCompatActivity {
             super.onPreExecute();
             progressBar.setVisibility(View.VISIBLE);
             progressBar.startAnimation(AnimationUtils.loadAnimation(VideoActivity.this, android.R.anim.fade_in));
+            videoItems.clear();
+            adapter.notifyDataSetChanged();
         }
 
         @Override
@@ -57,6 +73,7 @@ public class VideoActivity extends AppCompatActivity {
             progressBar.setVisibility(View.GONE);
             progressBar.startAnimation(AnimationUtils.loadAnimation(VideoActivity.this, android.R.anim.fade_out));
             adapter.notifyDataSetChanged();
+            refreshLayout.setRefreshing(false);
         }
 
         @Override
