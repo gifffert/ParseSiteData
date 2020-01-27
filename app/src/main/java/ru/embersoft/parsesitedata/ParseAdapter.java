@@ -68,4 +68,10 @@ public class ParseAdapter extends RecyclerView.Adapter<ParseAdapter.ViewHolder> 
             context.startActivity(intent);
         }
     }
+
+    public void setFilter (ArrayList<ParseItem> newList) {
+        parseItems = new ArrayList<>();
+        parseItems.addAll(newList);
+        notifyDataSetChanged();
+    }
 }

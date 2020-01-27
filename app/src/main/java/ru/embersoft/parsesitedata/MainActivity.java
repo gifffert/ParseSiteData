@@ -1,15 +1,20 @@
 package ru.embersoft.parsesitedata;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
+import android.app.SearchManager;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -40,6 +45,50 @@ public class MainActivity extends AppCompatActivity {
 
         Content content = new Content();
         content.execute();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar_item, menu);
+
+        MenuItem searchViewItem = menu.findItem(R.id.action_search);
+        // Get the search view and set the searchable configuration
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) searchViewItem.getActionView();
+        searchView.setQueryHint("Search...");
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setIconifiedByDefault(false); //Do not iconfy the widget; expand it by default
+
+        SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+
+                newText = newText.toLowerCase();
+                ArrayList<ParseItem> newList = new ArrayList<>();
+                for (ParseItem parseItem : parseItems) {
+                    String title = parseItem.getTitle().toLowerCase();
+
+                    // you can specify as many conditions as you like
+                    if (title.contains(newText)) {
+                        newList.add(parseItem);
+                    }
+                }
+                // create method in adapter
+                adapter.setFilter(newList);
+
+                return true;
+            }
+        };
+
+        searchView.setOnQueryTextListener(queryTextListener);
+
+        return true;
+
     }
 
     private class Content extends AsyncTask<Void,Void,Void>{
